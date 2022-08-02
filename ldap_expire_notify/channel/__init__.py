@@ -25,8 +25,7 @@ def parse(path):
         for root, _, files in os.walk(path):
             for f in files:
                 abs_path = os.path.join(root, f)
-                channel = parse_file(abs_path)
-                if channel:
+                if channel := parse_file(abs_path):
                     data['channels'].update(channel.get('channels', {}))
 
     if len(data.get('channels', {})) == 0:
@@ -35,8 +34,7 @@ def parse(path):
 
     channels = {}
     for name, info in data['channels'].items():
-        channel = _build_channel(name, info)
-        if channel:
+        if channel := _build_channel(name, info):
             channels[name] = channel
 
     return channels

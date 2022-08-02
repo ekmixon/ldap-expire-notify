@@ -42,8 +42,7 @@ class Channel(object):
     def check_configuration(self, config):
         for k in self.__required_conf__ + ['threshold']:
             if k not in config:
-                raise ValueError('Required field {} is missing for channel {}'.format(
-                    k, self.name))
+                raise ValueError(f'Required field {k} is missing for channel {self.name}')
 
     def start(self):
         logger.debug('Starting %d %s workers', self.num_workers, self.name)
@@ -68,7 +67,7 @@ class ChannelWorker(threading.Thread):
         self.channel = channel
         self.queue = queue
         # This is for informative logging
-        self.name = '{}-{}'.format(self.__class__.__name__, self.name.split('-')[-1])
+        self.name = f"{self.__class__.__name__}-{self.name.split('-')[-1]}"
 
     def log(self, msg, level=logging.INFO):
         logger.log(level, '%s: %s', self.name, msg)

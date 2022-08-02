@@ -42,8 +42,7 @@ def get_user_expiration_time(user_modification, modify_format, max_age):
     except ValueError:
         raise MissingModify('Unable to decode password modification time')
 
-    expiration_time = modification_time + datetime.timedelta(seconds=max_age)
-    return expiration_time
+    return modification_time + datetime.timedelta(seconds=max_age)
 
 
 def stop_channels(channels):

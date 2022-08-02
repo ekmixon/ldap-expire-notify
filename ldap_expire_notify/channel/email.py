@@ -81,11 +81,12 @@ class EmailWorker(ChannelWorker):
             self.conn = None
 
     def _connect(self):
-        self.log('Connecting to SMTP server at {}'.format(self.server), logging.DEBUG)
-        if not self.ssl:
-            self.conn = smtplib.SMTP(self.server, self.port)
-        else:
-            self.conn = smtplib.SMTP_SSL(self.server)
+        self.log(f'Connecting to SMTP server at {self.server}', logging.DEBUG)
+        self.conn = (
+            smtplib.SMTP_SSL(self.server)
+            if self.ssl
+            else smtplib.SMTP(self.server, self.port)
+        )
 
         if self.user and self.pwd:
             self.conn.login(self.user, self.pwd)
@@ -98,12 +99,11 @@ class EmailWorker(ChannelWorker):
         subject = self.subject_tmpl.render(data)
         body = self.body_tmpl.render(data)
         from_ = self.from_.render(data)
-        self.log('Sending email notification ({}) [{}] to {} from {}'.format(
-            subject,
-            body,
-            recipient,
-            from_,
-        ), logging.DEBUG)
+        self.log(
+            f'Sending email notification ({subject}) [{body}] to {recipient} from {from_}',
+            logging.DEBUG,
+        )
+
         msg = MIMEMultipart('alternative')
         msg['Subject'] = subject
         msg['From'] = from_

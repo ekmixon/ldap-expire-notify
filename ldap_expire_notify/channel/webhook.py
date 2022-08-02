@@ -24,12 +24,15 @@ class WebhookChannel(Channel):
         self.headers = configuration.get('headers', [])
 
         if self.throttle_retries < 1:
-            raise ValueError('throttle_retries must be greater than 0, got {}'.format(
-                self.throttle_retries))
+            raise ValueError(
+                f'throttle_retries must be greater than 0, got {self.throttle_retries}'
+            )
+
 
         if self.throttle_max_sleep < 1:
-            raise ValueError('throttle_max_sleep must be greater than 0, got {}'.format(
-                self.throttle_max_sleep))
+            raise ValueError(
+                f'throttle_max_sleep must be greater than 0, got {self.throttle_max_sleep}'
+            )
 
     def new_worker(self):
         return WebhookWorker(
@@ -70,14 +73,12 @@ class WebhookWorker(ChannelWorker):
 
     def notify(self, data):
         url = self.url_tmpl.render(data)
-        body = None
-        if self.body_tmpl:
-            body = self.body_tmpl.render(data)
-        self.log('Sending Webhook to {} ({}) [{}]'.format(
-            url,
-            self.method,
-            ' '.join(self.headers),
-        ), logging.DEBUG)
+        body = self.body_tmpl.render(data) if self.body_tmpl else None
+        self.log(
+            f"Sending Webhook to {url} ({self.method}) [{' '.join(self.headers)}]",
+            logging.DEBUG,
+        )
+
 
         sleep = 1
         for i in range(self.throttle_retries):
@@ -88,16 +89,14 @@ class WebhookWorker(ChannelWorker):
                 timeout=self.DEFAULT_TIMEOUT
             )
             if r.status_code == self.throttle_code:
-                self.log('Got throttle_code {}, sleeping {} seconds, {} out of {} retries'.format(
-                    r.status_code,
-                    sleep,
-                    i + 1,
-                    self.throttle_retries,
-                ))
+                self.log(
+                    f'Got throttle_code {r.status_code}, sleeping {sleep} seconds, {i + 1} out of {self.throttle_retries} retries'
+                )
+
                 time.sleep(sleep)
                 sleep = min(2 * sleep, self.throttle_max_sleep)
             else:
-                self.log('Got {}: {}'.format(r.status_code, r.content), logging.DEBUG)
+                self.log(f'Got {r.status_code}: {r.content}', logging.DEBUG)
                 break
         else:
-            raise RuntimeError('All requests to {} were throttled'.format(url))
+            raise RuntimeError(f'All requests to {url} were throttled')

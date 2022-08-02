@@ -17,7 +17,7 @@ def test_parse_file_yaml():
 
 def test_parse_file_unknown():
     r = channel.parse_file('channels/webhook.test.yson')
-    assert r == None
+    assert r is None
 
 
 def test_parse_directory_ko():

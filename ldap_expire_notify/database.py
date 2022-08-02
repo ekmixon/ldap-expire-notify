@@ -32,17 +32,14 @@ class LDAPDatabase(object):
 
     @staticmethod
     def string_record(record):
-        result = {}
-        for k, v in record.items():
-            result[k] = [vv.decode('utf-8') for vv in v]
-        return result
+        return {k: [vv.decode('utf-8') for vv in v] for k, v in record.items()}
 
     @staticmethod
     def parse_scope(scope):
         try:
             return LDAP_SCOPES[scope]
         except KeyError:
-            raise ValueError('Unknown LDAP query scope: {}'.format(scope))
+            raise ValueError(f'Unknown LDAP query scope: {scope}')
 
     def get_users(self, query='(uid=*)', scope='SUBTREE', attrs=None):
         logger.debug('Getting users from "%s" using "%s" filter', self.base_dn, query)

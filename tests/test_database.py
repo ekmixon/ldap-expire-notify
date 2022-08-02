@@ -61,7 +61,7 @@ class TestLDAPDatabase(unittest.TestCase):
 
     def test_string_record(self):
         a = {'a': [b'%d' % i for i in range(10)]}
-        b = {'a': [ '%s' % i for i in range(10)]}
+        b = {'a': [f'{i}' for i in range(10)]}
 
         self.assertEqual(database.LDAPDatabase.string_record(a), b)
 
@@ -82,7 +82,7 @@ class TestLDAPDatabase(unittest.TestCase):
             'ou=people,o=test',
         )
 
-        users = {dn: data for dn, data in m.get_users('(uid=*)')}
+        users = dict(m.get_users('(uid=*)'))
         self.assertEqual(len(users), len([1 for u in test_directory if 'uid=' in u]))
 
         self.assertEqual(self.ldapobj.methods_called(), ['initialize', 'simple_bind_s', 'search_s'])
